@@ -182,6 +182,6 @@ Live.
 
 Code written during the live session: <https://github.com/dotty-staging/dotty/commit/7dfde36139bc380ac9c6e0c4f5ee80647006c29e>.
 
-<small>For a real-world example of type-generation at compile-time, see [FSharp.Data](https://fsprojects.github.io/FSharp.Data/library/CsvFile.html) and [F# Type Providers](https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/).</small>
+<small>For a real-world example of generating types at compile-time, see [FSharp.Data](https://fsprojects.github.io/FSharp.Data/library/CsvFile.html) and [F# Type Providers](https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/).</small>
 
 # Thanks!
