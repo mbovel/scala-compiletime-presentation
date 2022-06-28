@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Matt Bovel @LAMP/LARA, EPFL">
-  <meta name="dcterms.date" content="2022-04-19">
-  <title>Towards nicer slides</title>
+  <meta name="dcterms.date" content="2022-06-28">
+  <title>Scala type-level operations</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -23,22 +23,6 @@
     ul.task-list{list-style: none;}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/reveal.js@^4//dist/theme/white.css" id="theme">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
-   var mathElements = document.getElementsByClassName("math");
-   var macros = [];
-   for (var i = 0; i < mathElements.length; i++) {
-    var texText = mathElements[i].firstChild;
-    if (mathElements[i].tagName == "SPAN") {
-     katex.render(texText.data, mathElements[i], {
-      displayMode: mathElements[i].classList.contains('display'),
-      throwOnError: false,
-      macros: macros,
-      fleqn: false
-     });
-  }}});
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/atom-one-light.min.css">
   <link rel="stylesheet" href="custom.css" />
 </head>
@@ -47,52 +31,227 @@
     <div class="slides">
 
 <section id="title-slide">
-  <h1 class="title">Towards nicer slides</h1>
+  <h1 class="title">Scala type-level operations</h1>
   <p class="author"><a href="mailto:matthieu@bovel.net">Matt Bovel</a> @<a href="https://www.epfl.ch/labs/lamp/">LAMP</a>/<a href="https://lara.epfl.ch/w/">LARA</a>, <a href="https://www.epfl.ch/fr/">EPFL</a></p>
-  <p class="date">April 19, 2022</p>
+  <p class="date">June 28, 2022</p>
 </section>
-
-<section id="markdown" class="slide level2">
-<h2>Markdown</h2>
+<section id="TOC">
+<nav role="doc-toc"> 
+<h2 id="toc-title">Outline</h2>
 <ul>
-<li>Item 1</li>
-<li>Item 2</li>
+<li><a href="#/literal-types">Literal types</a></li>
+<li><a href="#/term-reference-types">Term-reference types</a></li>
+<li><a href="#/dependent-parameter-types">Dependent parameter types</a></li>
+<li><a href="#/compile-time-operations">Compile-time operations</a></li>
+<li><a href="#/refinement-types">Refinement types</a></li>
+<li><a href="#/example-sized-vectors">Example: Sized vectors</a></li>
+<li><a href="#/algebraic-reasoning">Algebraic reasoning</a></li>
+<li><a href="#/example-check-vec.map-refinements">Example: Check <code>Vec.map</code> (refinements)</a></li>
+<li><a href="#/example-check-vec.map-type-params">Example: Check <code>Vec.map</code> (type params)</a></li>
+<li><a href="#/example-tf-dotty-with-abstract-dimensions">Example: tf-dotty (with abstract dimensions)</a></li>
+<li><a href="#/open-problems-with-normalization">Open problems with normalization</a></li>
+<li><a href="#/match-types">Match types</a></li>
+<li><a href="#/example-strongly-typed-printf">Example: strongly-typed <code>printf</code></a></li>
+<li><a href="#/example-regsafe">Example: regsafe</a></li>
+<li><a href="#/selectable">Selectable</a></li>
+<li><a href="#/hands-on-strongly-typed-csv-macros">Hands-on: strongly-typed CSV (macros)</a></li>
+<li><a href="#/hands-on-implement-read-and-refined">Hands-on: implement <code>Read</code> and <code>Refined</code></a></li>
+<li><a href="#/thanks">Thanks!</a></li>
 </ul>
-<ol type="1">
-<li>Item 1</li>
-<li>Item 2</li>
-</ol>
-<p><em>Emphasis</em>, <strong>Strong</strong></p>
+</nav>
 </section>
-<section id="syntax-highlighting" class="slide level2">
-<h2>Syntax highlighting</h2>
-<pre class="scala"><code>val a = if true then 0 else 42
-transparent inline def hello() = ???
-case class Foo(val bar: Int)
-extension (o: Object) def baz() = ???</code></pre>
-<p>(Supports Scala 3 syntax!)</p>
-</section>
-<section id="latex" class="slide level2">
-<h2>LaTeX</h2>
-<p><span class="math display">\phi = \frac{a}{b}</span></p>
-</section>
-<section id="slide-break" class="slide level2">
-<h2>Slide break</h2>
-<p>Can break to the next slide without a new heading using a Markdown section beak:</p>
-<pre><code>---</code></pre>
-</section>
-<section class="slide level2">
 
-<p>Second part.</p>
+<section id="literal-types" class="slide level2">
+<h2>Literal types</h2>
+<p>Type inhabited by a single constant value known at compile-time:</p>
+<pre class="scala"><code>val x: 3 = 3
+val y: false = false
+val z: &quot;monday&quot; | &quot;tuesday&quot; = &quot;monday&quot;</code></pre>
+<p><small>See <a href="https://docs.scala-lang.org/sips/42.type.html">SIP-23 - literal-based singleton types</a>.</small></p>
 </section>
-<section id="fragments" class="slide level2">
-<h2>Fragments</h2>
+<section id="term-reference-types" class="slide level2">
+<h2>Term-reference types</h2>
+<p>Type inhabited by a single non-necessary-constant term:</p>
+<pre class="scala"><code>val a: Int = ???
+val b: Int = ???
+val c: a.type = a
+val d: Int = a    // Ok because (a: Int) &lt;: Int</code></pre>
 <div class="fragment">
-<p>First thing</p>
+<pre class="scala"><code>val e: a.type = b // Error: found (b: Int)
+                  // but required (a: Int)</code></pre>
 </div>
+</section>
+<section id="dependent-parameter-types" class="slide level2">
+<h2>Dependent parameter types</h2>
+<pre class="scala"><code>def same(a: Any, b: a.type) = true
+same(3, 3) // Ok
+same(3, 4) // Error</code></pre>
 <div class="fragment">
-<p>Second thing</p>
+<pre class="scala"><code>def same2[T](a: T, b: T) = true
+same2(3, 4) // Ok</code></pre>
 </div>
+</section>
+<section id="compile-time-operations" class="slide level2">
+<h2>Compile-time operations</h2>
+<p>Simple bounded type aliases:</p>
+<pre class="scala"><code>infix type +[X &lt;: Int, Y &lt;: Int] &lt;: Int</code></pre>
+<div class="fragment">
+<p>With special compiler support for constant-folding:</p>
+<pre class="scala"><code>import scala.compiletime.ops.int.+
+
+val a: 2 + 2 = 4</code></pre>
+<p><small>See <a href="https://github.com/lampepfl/dotty/pull/7628">Add primitive compiletime operations on singleton types #7628</a>.</small></p>
+</div>
+</section>
+<section id="refinement-types" class="slide level2">
+<h2>Refinement types</h2>
+<pre class="scala"><code>case class Vec(size: Int)
+
+val v: Vec {val size: 2} = ???
+
+val size: 2 = v.size</code></pre>
+</section>
+<section id="example-sized-vectors" class="slide level2">
+<h2>Example: Sized vectors</h2>
+<pre class="scala"><code>//&gt; using options &quot;-Xprint:typer&quot;
+import scala.compiletime.ops.int.+
+def vec(s: Int) = Vec(s).asInstanceOf[Vec {val size: s.type }]
+def add(a: Int, b: Int) = (a + b).asInstanceOf[a.type + b.type]
+
+case class Vec(size: Int):
+  def sum(that: Vec {val size: Vec.this.size.type}) = vec(size)
+  def concat(that: Vec) = vec(add(size, that.size))
+
+val v: Vec {val size: 13} = vec(6).concat(vec(7)).sum(vec(13))</code></pre>
+<div class="code-source">
+<small>Source: <a href="examples/1_vec.scala"><code>examples/1_vec.scala</code></a></small>
+</div>
+</section>
+<section id="algebraic-reasoning" class="slide level2">
+<h2>Algebraic reasoning</h2>
+<pre class="scala"><code>// Summing x n times is normalized to x * n.
+summon[2L * m.type =:= m.type + m.type]
+summon[2L * m.type + 2L * m.type =:= m.type + 3L * m.type]
+summon[2L * m.type * m.type =:= m.type * 2L * m.type]</code></pre>
+</section>
+<section id="example-check-vec.map-refinements" class="slide level2">
+<h2>Example: Check <code>Vec.map</code> (refinements)</h2>
+<p>Live.</p>
+</section>
+<section id="example-check-vec.map-type-params" class="slide level2">
+<h2>Example: Check <code>Vec.map</code> (type params)</h2>
+<pre class="scala"><code>import compiletime.ops.int.{+,-}
+
+enum Vec[Len &lt;: Int, +T]:
+  case Nil extends Vec[0, Nothing]
+  case NotNil[T]() extends Vec[Int, T]
+
+  def ::[S &gt;: T](x: S): Vec[Len + 1, T] = ???
+  def tail: Vec[Len - 1, T] = ???
+  def head: T = ???
+
+  def map[S](f: T =&gt; S): Vec[Len, S] =
+    this match
+      case Vec.Nil =&gt; Vec.Nil
+      case _ =&gt; f(this.head) :: this.tail.map(f)</code></pre>
+<p><small>See <a href="https://portal.klewel.com/watch/webcast/typelevel-summit-lausanne-2019/talk/9/">Boruch-Gruszecki, A. (2019). GADTs in Dotty. Slide 16.</a></small></p>
+</section>
+<section id="example-tf-dotty-with-abstract-dimensions" class="slide level2">
+<h2>Example: tf-dotty (with abstract dimensions)</h2>
+<pre class="scala"><code>val x: Int = 2
+val y: Int = 2
+val tensor = tf.zeros(x #: y #: SNil)
+val res = tf.reshape(tensor, y #: x #: SNil)</code></pre>
+<p><small>See <a href="https://github.com/MaximeKjaer/tf-dotty">github.com/MaximeKjaer/tf-dotty</a>, in particular the <a href="https://github.com/MaximeKjaer/tf-dotty/blob/45af57dd0f60cb2d2fc9cf56f963b6ca4bd32909/modules/tensorflow/src/main/scala/io/kjaer/tensorflow/core/tf.scala#L82-L97">implementation of <code>reshape</code></a>.</small></p>
+</section>
+<section id="open-problems-with-normalization" class="slide level2">
+<h2>Open problems with normalization</h2>
+<ul>
+<li>Exponential explosion and compilation time</li>
+<li>Sub-typing</li>
+</ul>
+</section>
+<section id="match-types" class="slide level2">
+<h2>Match types</h2>
+<pre class="scala"><code>type IsEmpty[S &lt;: String] &lt;: Boolean = S match {
+  case &quot;&quot; =&gt; true
+  case _ =&gt; false
+}
+
+summon[IsEmpty[&quot;&quot;] =:= true]
+summon[IsEmpty[&quot;hello&quot;] =:= false]</code></pre>
+<p><small>See <a href="http://infoscience.epfl.ch/record/290019">Blanvillain, O., Brachthäuser, J., Kjaer, M., &amp; Odersky, M. (2021). Type-Level Programming with Match Types. 70.</a></small></p>
+</section>
+<section id="example-strongly-typed-printf" class="slide level2">
+<h2>Example: strongly-typed <code>printf</code></h2>
+<pre class="scala"><code>//&gt; using scala &quot;3.nightly&quot;
+//&gt; using options &quot;-Xprint:typer&quot;
+import scala.compiletime.ops.int.{+}
+import scala.compiletime.ops.string.{CharAt, Length, Substring}
+import scala.Tuple._
+
+type ArgTypes[S &lt;: String] &lt;: Tuple = 
+  S match {
+    case &quot;&quot; =&gt; EmptyTuple
+    case _ =&gt; CharAt[S, 0] match {
+      case &#39;%&#39; =&gt; CharAt[S, 1] match {
+        case &#39;d&#39; =&gt; Int *: ArgTypes[Substring[S, 2, Length[S]]]
+        case &#39;s&#39; =&gt; String *: ArgTypes[Substring[S, 2, Length[S]]]
+      }
+      case _ =&gt; ArgTypes[Substring[S, 1, Length[S]]]
+  }
+}
+
+def printf(s: String)(t: ArgTypes[s.type]): Unit = ()
+
+def test() = printf(&quot;%d, %d&quot;)(2, 3)</code></pre>
+<div class="code-source">
+<small>Source: <a href="examples/2_printf.scala"><code>examples/2_printf.scala</code></a></small>
+</div>
+</section>
+<section id="example-regsafe" class="slide level2">
+<h2>Example: regsafe</h2>
+<pre class="scala"><code>import regsafe.Regex
+
+val date = Regex(&quot;&quot;&quot;(\d{4})-(\d{2})-(\d{2})&quot;&quot;&quot;)
+&quot;2004-01-20&quot; match
+  case date(y, m, d, a) =&gt;
+    s&quot;$y was a good year for PLs.&quot;</code></pre>
+<p><small>See <a href="https://github.com/OlivierBlanvillain/regsafe">github.com/OlivierBlanvillain/regsafe</a> and <a href="https://2022.ecoop.org/details/scala-2022-papers/1/Type-Safe-Regular-Expressions">Blanvillain, O. (2022). Type-Safe Regular Expressions.</a></small></p>
+</section>
+<section id="selectable" class="slide level2">
+<h2>Selectable</h2>
+<pre class="scala"><code>class MySelectable extends Selectable:
+    def selectDynamic(name: String): Any =
+        name match
+            case &quot;foo&quot; =&gt; 1
+            case &quot;bar&quot; =&gt; &quot;hey&quot;
+
+val s = MySelectable().asInstanceOf[MySelectable {val foo: Int; val bar: String}]
+
+@main def test() =
+    println(s.foo)
+    println(s.bar)</code></pre>
+<div class="code-source">
+<small>Source: <a href="examples/3_selectable.scala"><code>examples/3_selectable.scala</code></a></small>
+</div>
+</section>
+<section id="hands-on-strongly-typed-csv-macros" class="slide level2">
+<h2>Hands-on: strongly-typed CSV (macros)</h2>
+<pre class="scala"><code>transparent inline def refine(inline file: String) = Macro.read(file)
+
+def test() =
+  val x = refine(&quot;hello.txt&quot;)</code></pre>
+<div class="code-source">
+<small>Source: <a href="examples/4_macro_refinement/2_main.scala"><code>examples/4_macro_refinement/2_main.scala</code></a></small>
+</div>
+</section>
+<section id="hands-on-implement-read-and-refined" class="slide level2">
+<h2>Hands-on: implement <code>Read</code> and <code>Refined</code></h2>
+<p>Live.</p>
+</section>
+<section id="thanks" class="slide level2">
+<h2>Thanks!</h2>
 </section>
     </div>
   </div>
@@ -143,7 +302,7 @@ extension (o: Object) def baz() = ???</code></pre>
         respondToHashChanges: true,
 
         // Push each slide change to the browser history
-        history: false,
+        history: true,
 
         // Enable keyboard shortcuts for navigation
         keyboard: true,

@@ -1,8 +1,12 @@
 all: presentation.html presentation.pdf
 
-%.html: %.md Makefile custom.css
+%.preprocessed.md: %.md Makefile preprocess.sc examples/*.scala
+	./preprocess.sc $< > $@
+
+%.html: %.preprocessed.md Makefile custom.css
 	docker run --rm --volume "`pwd`:/data" --user `id -u`:`id -g` pandoc/latex \
 		$< \
+		--table-of-contents \
 		-t revealjs \
 		--standalone \
 		--output $@ \
@@ -23,6 +27,8 @@ all: presentation.html presentation.pdf
 		-V transition="none" \
 		-V header-includes='<link rel="stylesheet" href="custom.css" />' \
 		-V include-after='<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/languages/scala.min.js"></script><script>hljs.highlightAll();</script>' \
+		-V toc-title="Outline" \
+		-V history="true" \
 		--shift-heading-level-by=1
 
 %.pdf: %.html
