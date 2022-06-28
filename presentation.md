@@ -148,6 +148,9 @@ summon[IsEmpty["hello"] =:= false]
 # Example: strongly-typed `printf`
 
 <examples/2_printf.scala>
+
+<small>See also [`printf` in Zig](https://ziglang.org/documentation/0.1.1/#case-study-printf)</small>
+
 # Example: regsafe
 
 ```scala
@@ -163,14 +166,22 @@ val date = Regex("""(\d{4})-(\d{2})-(\d{2})""")
 
 # Selectable
 
+_Not presented._
+
 <examples/3_selectable.scala>
 
 # Hands-on: strongly-typed CSV (macros)
 
-<examples/4_macro_refinement/2_main.scala>
+_Not presented._
 
-# Hands-on: implement `Read` and `Refined`
+<examples/4_macro_refinement/1_macro.scala>
+
+# Hands-on: implement `Read`
 
 Live.
+
+Code written during the live session: <https://github.com/dotty-staging/dotty/commit/7dfde36139bc380ac9c6e0c4f5ee80647006c29e>.
+
+<small>For a real-world example of type-generation at compile-time, see [FSharp.Data](https://fsprojects.github.io/FSharp.Data/library/CsvFile.html) and [F# Type Providers](https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/).</small>
 
 # Thanks!

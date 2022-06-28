@@ -55,7 +55,7 @@
 <li><a href="#/example-regsafe">Example: regsafe</a></li>
 <li><a href="#/selectable">Selectable</a></li>
 <li><a href="#/hands-on-strongly-typed-csv-macros">Hands-on: strongly-typed CSV (macros)</a></li>
-<li><a href="#/hands-on-implement-read-and-refined">Hands-on: implement <code>Read</code> and <code>Refined</code></a></li>
+<li><a href="#/hands-on-implement-read">Hands-on: implement <code>Read</code></a></li>
 <li><a href="#/thanks">Thanks!</a></li>
 </ul>
 </nav>
@@ -208,6 +208,7 @@ def test() = printf(&quot;%d, %d&quot;)(2, 3)</code></pre>
 <div class="code-source">
 <small>Source: <a href="examples/2_printf.scala"><code>examples/2_printf.scala</code></a></small>
 </div>
+<p><small>See also <a href="https://ziglang.org/documentation/0.1.1/#case-study-printf"><code>printf</code> in Zig</a></small></p>
 </section>
 <section id="example-regsafe" class="slide level2">
 <h2>Example: regsafe</h2>
@@ -221,6 +222,7 @@ val date = Regex(&quot;&quot;&quot;(\d{4})-(\d{2})-(\d{2})&quot;&quot;&quot;)
 </section>
 <section id="selectable" class="slide level2">
 <h2>Selectable</h2>
+<p><em>Not presented.</em></p>
 <pre class="scala"><code>class MySelectable extends Selectable:
     def selectDynamic(name: String): Any =
         name match
@@ -238,17 +240,30 @@ val s = MySelectable().asInstanceOf[MySelectable {val foo: Int; val bar: String}
 </section>
 <section id="hands-on-strongly-typed-csv-macros" class="slide level2">
 <h2>Hands-on: strongly-typed CSV (macros)</h2>
-<pre class="scala"><code>transparent inline def refine(inline file: String) = Macro.read(file)
+<p><em>Not presented.</em></p>
+<pre class="scala"><code>import scala.quoted.*
 
-def test() =
-  val x = refine(&quot;hello.txt&quot;)</code></pre>
+object Macro {
+  transparent inline def read(file: String): Any =
+    ${ impl(&#39;file) }
+
+  private def impl(file: Expr[String])(using Quotes): Expr[Any] = {
+    import quotes.reflect.*
+    val refinementType = Refinement(TypeRepr.of[Object], &quot;hello&quot;, TypeRepr.of[String]).asType
+
+    refinementType match
+      case &#39;[t] =&gt; &#39;{ Selectable.asInstanceOf[t] }
+  }
+}</code></pre>
 <div class="code-source">
-<small>Source: <a href="examples/4_macro_refinement/2_main.scala"><code>examples/4_macro_refinement/2_main.scala</code></a></small>
+<small>Source: <a href="examples/4_macro_refinement/1_macro.scala"><code>examples/4_macro_refinement/1_macro.scala</code></a></small>
 </div>
 </section>
-<section id="hands-on-implement-read-and-refined" class="slide level2">
-<h2>Hands-on: implement <code>Read</code> and <code>Refined</code></h2>
+<section id="hands-on-implement-read" class="slide level2">
+<h2>Hands-on: implement <code>Read</code></h2>
 <p>Live.</p>
+<p>Code written during the live session: <a href="https://github.com/dotty-staging/dotty/commit/7dfde36139bc380ac9c6e0c4f5ee80647006c29e" class="uri">https://github.com/dotty-staging/dotty/commit/7dfde36139bc380ac9c6e0c4f5ee80647006c29e</a>.</p>
+<p><small>For a real-world example of type-generation at compile-time, see <a href="https://fsprojects.github.io/FSharp.Data/library/CsvFile.html">FSharp.Data</a> and <a href="https://docs.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/">F# Type Providers</a>.</small></p>
 </section>
 <section id="thanks" class="slide level2">
 <h2>Thanks!</h2>
