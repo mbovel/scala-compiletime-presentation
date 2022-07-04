@@ -1,4 +1,4 @@
-# Presentation template
+# Scala type-level operations
 
 [Presentation](https://mbovel.github.io/scala-compiletime-presentation/presentation.html).
 
